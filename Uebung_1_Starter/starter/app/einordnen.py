@@ -51,14 +51,28 @@ def einordnen(mail: str, versuche: int = 3) -> Anfrage:
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": mail},
     ]
-    # TODO 1: Ruft das Modell auf. Wählt eine passende temperature
-    #         und übergebt response_format=schema_von(Anfrage).
-    # TODO 2: Prüft die Antwort mit Anfrage.model_validate_json(...).
-    # TODO 3: Schlägt die Prüfung fehl (ValidationError), versucht es
-    #         erneut, höchstens `versuche`-mal. Gebt bei jedem
-    #         Fehlversuch eine kurze Meldung aus. Klappt es gar
-    #         nicht, werft einen RuntimeError.
-    raise NotImplementedError("TODO: einordnen() umsetzen")
+
+    
+    for versuch in range(versuche):
+        try:
+
+            antwort = client.chat.completions.create(
+                model=MODEL,
+                messages=nachricht,
+                temperature=0.0,  # temperature auf 0, weil das Ergebnis laut Aufgabenstellung immer die selbe Form haben soll
+                response_format=schema_von(Anfrage),
+            )
+
+            anfrage = Anfrage.model_validate_json(
+                antwort.choices[0].message.content or ""
+            )
+            return anfrage
+
+        except ValidationError as e:
+            print(f"Fehler in der Antwort (Versuch {versuch + 1}/{versuche}): {e}")
+            if versuch == versuche - 1:
+                raise RuntimeError("Fehler bei der Validierung der Antwort") from e
+
 
 
 def auswerten() -> None:
@@ -68,9 +82,13 @@ def auswerten() -> None:
     richtig = 0
     for fall in faelle:
         ergebnis = einordnen(fall["mail"])
-        # TODO 4: Vergleicht ergebnis mit fall["erwartet"]. Zählt einen
-        #         Fall als richtig, wenn das Anliegen stimmt. Gebt für
-        #         jeden Fall Mail, Ergebnis und ✓ oder ✗ aus.
+        
+        if ergebnis.anliegen == fall["erwartet"]["anliegen"]:
+            richtig += 1
+            korrekt = "✓"
+        else:
+            korrekt = "✗"
+        print(f"Mail: {fall['mail']}\nErgebnis: {ergebnis}\nErwartet: {fall['erwartet']}\n{korrekt}\n")
     print(f"\n{richtig} von {len(faelle)} Anliegen richtig ({MODEL})")
 
 

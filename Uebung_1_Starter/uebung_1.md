@@ -60,18 +60,6 @@ _Es laufen die Container 'ollama', 'modell-laden' und 'app'. Die Anwendung finde
 
 2. Stellt drei verschiedene Fragen an den Campus-Assistenten. Notiert jeweils **Time to First Token** und **Gesamtdauer**.
 
-*"Wie melde ich mich zu einer Prüfung an?":*
- - Time to First Token: 
- - Gesamtdauer:       
-
-*"Wann hat die Kantine auf?*
-- Time to First Token: 
-- Gesamtdauer:         
-
-*"wo ist das O-Gebäude?*
-- Time to First Token: 
-- Gesamtdauer:         
----
 
 ## Teil 2 · Modell austauschen (Kern)
 
@@ -119,8 +107,64 @@ docker compose run --rm app sampling.py
 Das Skript stellt dieselbe Frage je fünfmal bei Temperature 0, 0,7 und 1,2 und zählt die verschiedenen Antworten.
 
 1. Wie viele verschiedene Antworten bekommt ihr bei jeder Temperature?
+
+![alt text](image.png)
+
+Prompt: Erfinde einen Namen für ein neues Gericht in der Mensa. Antworte nur mit dem Namen.
+
+Temperature 0.0: 1 verschiedene Antworten bei 5 Durchläufen
+   5× "Sonnenblume"
+
+Temperature 0.7: 5 verschiedene Antworten bei 5 Durchläufen
+   1× "Sunriser"
+   1× Terraflora
+   1× "Sunrise Symphony"
+   1× "Sunset-Salat"
+   1× "Sonnenblume-Blütenfrittat"
+
+Temperature 1.2: 5 verschiedene Antworten bei 5 Durchläufen
+   1× "Hellespflanzenstich"
+   1× "Mediterrasch"
+   1× "Sonnenblumen-Salat im Linieneinsatz"
+   1× "Florigans"
+   1× Floralia
+
+
 2. Liefert Temperature 0 wirklich fünfmal dieselbe Antwort? Wenn nicht: Woran könnte das liegen? (Skript VL 2, Abschnitt „Inkonsistenz“.)
+
+ja liefert sie bei uns
+
+Aus der Vorlesung: Inkonsistenz zeigt sich in zwei Formen. Gleiche Eingabe, unterschiedliche Ausgabe:
+Dieselbe Frage zweimal gestellt liefert zwei verschiedene Antworten. Dagegen helfen
+Caching, eine niedrige Temperature und ein fester Seed für den Zufallsgenerator. Eine
+Garantie gibt es trotzdem nicht, weil selbst die Hardware das Ergebnis beeinflussen kann.
+Leicht andere Eingabe, sehr andere Ausgabe: Schon ein anderer Großbuchstabe
+kann die Antwort ändern. Dagegen helfen nur sorgfältige Prompts (VL 3) und gute
+Evaluation (VL 8).
+
 3. Startet das Skript mit einer Faktenfrage, z. B. `sampling.py "Ist die HTWG Konstanz eine private oder staatliche Hochschule? Antworte mit einem Satz."`. Achtet nicht nur auf „privat oder staatlich“, sondern auf jedes Detail, etwa wofür die Abkürzung HTWG steht. Welche Fehler kommen schon bei Temperature 0 vor, welche erst bei höheren Werten? Was sagt das über die Ursache (Sampling oder Trainingsdaten)?
+
+Prompt: Ist die HTWG Konstanz eine private oder staatliche Hochschule? Antworte mit einem Satz.
+
+Temperature 0.0: 1 verschiedene Antworten bei 5 Durchläufen
+   5× Die Hochschule für Technik und Wirtschaft (HTWG) Konstanz ist eine staatliche Hochschule.
+
+Temperature 0.7: 3 verschiedene Antworten bei 5 Durchläufen
+   3× Die HTWG Konstanz ist eine staatliche Hochschule.
+   1× Die Hochschule für Technik und Wirtschaft (HTWG) Konstanz ist eine staatliche Hochschule.
+   1× Die Hochschule für Technologie, Wirtschaft und Gesellschaft (HTWG) Konstanz ist eine staatliche Hochschule.
+
+Temperature 1.2: 5 verschiedene Antworten bei 5 Durchläufen
+   1× Die Hochschule für Technologie, Wirtschaft und Gestaltung Konstanz (HTWG Konstanz) ist eine staatliche Hochschule unter privater Hochschulrechtsform.
+   1× Die HTWG Konstanz (HT-Wettbewerbsstärkende Weiterbildung in Wirtschaft und Technik) ist eine staatliche Weiterbildungseinrichtung.
+   1× Die HTWG Konstanz (Hocheduccarteacon) ist eine staatliche Universität.
+   1× Die Hochschule für Technologielehre, Wirtschaft und Gesellschaft (HTWG) Konstanz ist eine staatliche Hochschule im öffentlich-rechtlichen Sektor.
+   1× Die Hochschule Technik und Wirtschaftspädadogie Konstanz (HTWG) Konstanz ist eine staatlich anerkannte und -finanzierte privates Universität
+
+Bei temperature 0 fehlt das Gestaltung komplett, bei 0.7 Gesellschaft statt Gestaltung. Bei Temperature 1.3 kommt kompletter Müll.
+
+Die Fehler sind durch fehlendes Wissen hervorgerufen, sodass es plausibel klingende Antworten erfindet. Das Modell weiß z.B. nicht für was das G in HTWG steht
+
 
 ### Tokens
 
@@ -129,7 +173,31 @@ docker compose run --rm app tokens.py
 ```
 
 1. Wie viele Tokens braucht der deutsche Text, wie viele der englische? Um wie viel Prozent ist Deutsch teurer?
+
+Deutsch    63 Tokens für 21 Wörter
+Englisch   49 Tokens für 21 Wörter
+
+Deutsch braucht 14 Tokens mehr (+29%).
+
 2. Ersetzt in `tokens.py` die Texte durch eine eigene Frage mit langen zusammengesetzten Wörtern (z. B. „Prüfungsanmeldungsfrist“). Wird der Unterschied größer?
+
+    "Deutsch": "Wo finde ich das Prüfungsanmeldeformular für die "
+               "Mathematikabschlussklausur, und gilt die "
+               "Prüfungsrücktrittsfristverlängerung laut "
+               "Hochschulprüfungsordnungsänderungssatzung auch für "
+               "Teilzeitstudierende?",
+    "Englisch": "Where can I find the exam registration form for the "
+                "final mathematics exam, and does the extension of the "
+                "exam withdrawal deadline under the amendment to the "
+                "university examination regulations also apply to "
+                "part-time students?",
+
+Deutsch    87 Tokens für 17 Wörter
+Englisch   63 Tokens für 35 Wörter
+
+Deutsch braucht 24 Tokens mehr (+38%).
+
+-> Wird größer
 
 ---
 
