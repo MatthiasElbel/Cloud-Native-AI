@@ -11,12 +11,16 @@ Aufruf:
 from llm import MODEL, client
 
 TEXTE = {
-    "Deutsch": "Wie melde ich mich im Studiengang Angewandte Informatik "
-               "für die Prüfung in Mathematik 3 an, und bis wann ist "
-               "die Anmeldefrist?",
-    "Englisch": "How do I register for the Mathematics 3 exam in the "
-                "Applied Computer Science program, and what is the "
-                "registration deadline?",
+    "Deutsch": "Wo finde ich das Prüfungsanmeldeformular für die "
+               "Mathematikabschlussklausur, und gilt die "
+               "Prüfungsrücktrittsfristverlängerung laut "
+               "Hochschulprüfungsordnungsänderungssatzung auch für "
+               "Teilzeitstudierende?",
+    "Englisch": "Where can I find the exam registration form for the "
+                "final mathematics exam, and does the extension of the "
+                "exam withdrawal deadline under the amendment to the "
+                "university examination regulations also apply to "
+                "part-time students?",
 }
 
 

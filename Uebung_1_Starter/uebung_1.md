@@ -50,15 +50,33 @@ docker compose run --rm app hallo_llm.py "Wie melde ich mich zu einer Prüfung a
 ```
 
 **Aufgaben:**
+---
 
 1. Lest `compose.yaml`, `app/llm.py` und `app/hallo_llm.py`. Beschreibt im README in drei, vier Sätzen: Welche Container laufen, und wie findet die Anwendung das Modell?
+
+_Es laufen die Container 'ollama', 'modell-laden' und 'app'. Die Anwendung findet das Modell durch zwei Variablen aus unserer .env Datei (LLM_BASE_URL, LLM_MODEL)_
+
+---
+
 2. Stellt drei verschiedene Fragen an den Campus-Assistenten. Notiert jeweils **Time to First Token** und **Gesamtdauer**.
 
+*"Wie melde ich mich zu einer Prüfung an?":*
+ - Time to First Token: 
+ - Gesamtdauer:       
+
+*"Wann hat die Kantine auf?*
+- Time to First Token: 
+- Gesamtdauer:         
+
+*"wo ist das O-Gebäude?*
+- Time to First Token: 
+- Gesamtdauer:         
 ---
 
 ## Teil 2 · Modell austauschen (Kern)
 
 Ändert in `.env` nur die Zeile `LLM_MODEL` auf `qwen2.5:0.5b` und stellt dieselben drei Fragen noch einmal. **Am Code ändert ihr nichts.**
+
 
 **Aufgaben:**
 
@@ -66,10 +84,23 @@ docker compose run --rm app hallo_llm.py "Wie melde ich mich zu einer Prüfung a
 
 | Frage | Modell | TTFT (ms) | Gesamt (ms) | Antwort brauchbar? |
 |---|---|---|---|---|
-| … | llama3.2:3b | | | |
-| … | qwen2.5:0.5b | | | |
+| "Wie melde ich mich zu einer Prüfung an?" | llama3.2:3b | 12177 ms|   26728 ms| So halb|
+| ""Wie melde ich mich zu einer Prüfung an?"" | qwen2.5:0.5b | 2621 ms|  5610 ms| Nein|
+| "Wann hat die Kantine auf?" | llama3.2:3b |457 ms |7984 ms | So halb|
+| "Wann hat die Kantine auf?" | qwen2.5:0.5b | 186 ms| 1516 ms| Nein |
+| "Wie melde ich mich zu einer Prüfung an?" | llama3.2:3b | 412 ms|3706 ms | So halb|
+| ""Wie melde ich mich zu einer Prüfung an?"" | qwen2.5:0.5b | 123 ms|  1594 ms| So halb|
+
+---
+
 
 2. Fragt beide Modelle: „Ist die HTWG Konstanz eine private oder eine staatliche Hochschule?“ Was fällt euch auf?
+
+llama: Die Hochschule für Technik und Wirtschaft Konstanz (HTWG) ist eine staatliche Hochschule.
+
+qwen: Die HTWG Konstanz ist eine staatliche Hochschule.
+
+-> Lama dauert länger gibt dafür auch eine längere antwort
 
 **Optional, wenn die Academic Cloud erreichbar ist:** Mit einem API-Key über [KISSKI](https://kisski.gwdg.de/en/leistungen/2-02-llm-service/) tragt ihr Variante B aus `.env.example` ein und nutzt `qwen3-30b-a3b-instruct-2507` als drittes Modell im Vergleich. Wer keinen Key hat oder wenn der Dienst nicht läuft, verliert dadurch nichts. Alle Teile funktionieren komplett lokal.
 
